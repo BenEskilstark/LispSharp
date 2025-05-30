@@ -1,0 +1,3 @@
+ - if statements eval both branches before returning
+    - should be evaling lazily somehow
+ - recursion not working (lazy eval should also fix this...)
