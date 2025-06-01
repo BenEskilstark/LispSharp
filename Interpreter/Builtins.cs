@@ -4,10 +4,17 @@ public class Builtins()
 {
     public static void Eval(Tree tree)
     {
+        Tree? fn = tree.ScopeLookup(tree.Children[0].Value)?.Copy(tree);
+        if (fn != null && fn.Value == null) {
+            fn.Parent = tree;
+            fn.Value = null;
+            Tree.PopulateScope(fn);
+            fn.Value = fn.Eval();
+        }
         switch (tree.Children[0].Value)
         {
             case "def":
-                tree.Parent!.Scope.Add(tree.Children[1].Value!, tree.Children[2]);
+                tree.Parent!.Scope.Add(tree.Children[1].Value!, tree.Children[2].Copy(tree.Parent));
                 break;
             case "print":
                 Console.WriteLine(tree.Children[1].Value);

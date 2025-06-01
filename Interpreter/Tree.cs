@@ -4,8 +4,7 @@ namespace Interpreter;
 public class Tree(int _depth)
 {
     public int Depth { get; } = _depth;
-    public string? Value
-    {
+    public string? Value {
         get => ScopeLookup(field)?.Value ?? field;
         set;
     }
@@ -20,46 +19,44 @@ public class Tree(int _depth)
 
     // lambdas
     public bool IsLambda { get; set; } = false;
-    public Dictionary<string, Tree> Functions { get; set; } = [];
 
 
     public string Eval()
     {
         if (this.Value != null) return this.Value;
 
-        for (int i = 0; i < this.Children.Count; i++)
-        {
-            Tree child = this.Children[i];
-            if (i == 0 && child.IsLambda)
-            {
-                PopulateScope(child);
+        bool lazyEval = false;
+        // Console.WriteLine(this);
+        PrintScope(this);
+        if (this.Children[0].Value == "if") {
+            this.Children[1].Value ??= this.Children[1].Eval();
+            if (bool.Parse(this.Children[1].Value ?? "false")) {
+                this.Children[2].Value ??= this.Children[2].Eval();
             }
-            else if (child.IsLambda)
-            {
-                child.Value = "fn_" + Guid.NewGuid().ToString();
-                this.Parent.Functions[child.Value] = child;
-
-                continue; // don't eval fn that's not in fn position
+            else {
+                this.Children[3].Value ??= this.Children[3].Eval();
             }
-            else if (i == 1 && this.IsLambda)
-            {
-                continue; // don't eval your own arguments
-            }
-            child.Value ??= child.Eval();
-
+            lazyEval = true;
         }
 
-        // Console.WriteLine(this);
-        if (this.Children[0].Value?.StartsWith("fn_") == true)
-        {
-            Tree? fn = FunctionLookup(this.Children[0].Value);
-            // Console.WriteLine("looked up: " + fn);
-            if (fn != null)
+        if (!lazyEval) {
+            for (int i = 0; i < this.Children.Count; i++)
             {
-                fn.Value = null;
-                fn.Parent = this;
-                PopulateScope(fn);
-                fn.Value = fn.Eval();
+                Tree child = this.Children[i];
+                if (i == 0 && child.IsLambda)
+                {
+                    PopulateScope(child);
+                }
+                else if (child.IsLambda)
+                {
+                    continue; // don't eval fn that's not in fn position
+                }
+                else if (i == 1 && this.IsLambda)
+                {
+                    continue; // don't eval your own arguments
+                }
+                child.Value = child.Eval();
+
             }
         }
 
@@ -75,6 +72,7 @@ public class Tree(int _depth)
     // where N is the number of arguments in this tree's first child
     public static void PopulateScope(Tree child)
     {
+        // child.Value = null;
         Tree parent = child.Parent!;
         for (int j = 0; j < child.Children[1].Children.Count; j++)
         {
@@ -83,26 +81,19 @@ public class Tree(int _depth)
         }
     }
 
+    public static void PrintScope(Tree tree) {
+        foreach ((string key, Tree value) in tree.Scope) {
+            Console.WriteLine(key + ": " + value);
+        }
+    }
+
 
     public Tree? ScopeLookup(string? value)
     {
         if (value == null) return null;
-        if (value.StartsWith("fn_"))
-        {
-
-
-        }
+        // Console.WriteLine(value);
         if (Scope.TryGetValue(value, out var tree)) return tree;
         if (this.Parent != null) return this.Parent.ScopeLookup(value);
-        return null;
-    }
-
-
-    public Tree? FunctionLookup(string? value)
-    {
-        if (value == null) return null;
-        if (Functions.TryGetValue(value, out var tree)) return tree;
-        if (this.Parent != null) return this.Parent.FunctionLookup(value);
         return null;
     }
 
@@ -115,6 +106,16 @@ public class Tree(int _depth)
     {
         item.Parent = this;
         Children.Add(item);
+    }
+
+    public Tree Copy(Tree parent) {
+        Tree copy = new(this.Depth) { 
+            Value = this.Value,
+            Parent = parent,
+            Scope = this.Scope,
+        };
+        copy.Children = this.Children.Select(c => c.Copy(copy)).ToList();
+        return copy;
     }
 
     public override string ToString()
