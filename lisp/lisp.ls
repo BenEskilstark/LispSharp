@@ -30,7 +30,12 @@
 # (def bar (fn (bool) (if bool (print "foo") (err))))
 # (bar true)
 
-(def fac (fn (n) (if (== n 0) 1 (* n (fac (- n 1))))))
+(def fac (fn (n) 
+    (if (== n 0) 
+        1 
+        (* n (fac (- n 1)))
+    )
+))
 
 # (print (fac 0))
 (fac 10)

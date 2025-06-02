@@ -25,10 +25,10 @@ public class Tree(int _depth)
     public string Eval()
     {
         if (this.Value != null) return this.Value;
+        if (this.Children.Count == 0) return null;
 
         bool lazyEval = false;
         // Console.WriteLine(this);
-        PrintScope(this);
         if (this.Children[0].Value == "if") {
             this.Children[1].Value ??= this.Children[1].Eval();
             if (bool.Parse(this.Children[1].Value ?? "false")) {

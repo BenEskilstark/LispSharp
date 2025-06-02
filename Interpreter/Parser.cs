@@ -2,10 +2,10 @@ namespace Interpreter;
 
 public class Parser()
 {
-    public static Tree Parse(string input)
+    public static Tree Parse(string input, Tree? parent = null)
     {
         List<string> tokens = Tokenize(input);
-        Tree curTree = new(0);
+        Tree curTree = parent == null ? new Tree(0) : parent;
         Stack<Tree> consStack = [];
         foreach (string token in tokens)
         {
