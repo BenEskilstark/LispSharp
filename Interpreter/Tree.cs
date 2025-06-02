@@ -20,6 +20,7 @@ public class Tree(int _depth)
     // lambdas
     public bool IsLambda { get; set; } = false;
 
+    
 
     public string Eval()
     {
@@ -76,8 +77,8 @@ public class Tree(int _depth)
         Tree parent = child.Parent!;
         for (int j = 0; j < child.Children[1].Children.Count; j++)
         {
-            // Console.WriteLine(child.Children[1].Children[j].Value + ": " + parent.Children[j + 1]);
-            parent.Scope[child.Children[1].Children[j].Value!] = parent.Children[j + 1];
+            // Console.WriteLine("X " + NoScopeValue(child.Children[1].Children[j])+ ": " + parent.Children[j + 1]);
+            parent.Scope[NoScopeValue(child.Children[1].Children[j])!] = parent.Children[j + 1];
         }
     }
 
@@ -108,14 +109,32 @@ public class Tree(int _depth)
         Children.Add(item);
     }
 
-    public Tree Copy(Tree parent) {
+    public Tree Copy(Tree? parent) {
         Tree copy = new(this.Depth) { 
-            Value = this.Value,
+            Value = NoScopeValue(this),
             Parent = parent,
-            Scope = this.Scope,
         };
+        foreach (var p in this.Scope) {
+            copy.Scope[p.Key] = p.Value.Copy(parent);
+        }
         copy.Children = this.Children.Select(c => c.Copy(copy)).ToList();
         return copy;
+    }
+
+    public static string? NoScopeValue(Tree thisTree) {
+        if (thisTree.Value == null) return thisTree.Value;
+        
+        Tree? p = thisTree;
+        while (p != null) {  
+            foreach ((string key, Tree tree) in p.Scope) {
+                if (thisTree.Value == tree.Value) {
+                    // Console.WriteLine("No scoped " + key);
+                    return key;
+                }
+            }
+            p = p.Parent;
+        }
+        return thisTree.Value;
     }
 
     public override string ToString()

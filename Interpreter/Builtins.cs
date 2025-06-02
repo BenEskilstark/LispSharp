@@ -4,13 +4,6 @@ public class Builtins()
 {
     public static void Eval(Tree tree)
     {
-        Tree? fn = tree.ScopeLookup(tree.Children[0].Value)?.Copy(tree);
-        if (fn != null && fn.Value == null) {
-            fn.Parent = tree;
-            fn.Value = null;
-            Tree.PopulateScope(fn);
-            fn.Value = fn.Eval();
-        }
         switch (tree.Children[0].Value)
         {
             case "def":
@@ -96,7 +89,6 @@ public class Builtins()
                     .ToString();
                 break;
             case "*":
-                Console.WriteLine(tree);
                 tree.Value = tree.Children[1..]
                     .Select(c => double.Parse(c.Value!))
                     .Aggregate((total, next) => total * next)
@@ -110,9 +102,13 @@ public class Builtins()
                 break;
 
             default:
-                // else try to evaluate first position as a function
-                // Tree? treeFn = tree.FunctionLookup(tree.Children[0].Value);
-                // Console.WriteLine("evaling: " + tree.Children[0] + " as " + treeFn);
+                Tree? fn = tree.ScopeLookup(tree.Children[0].Value)?.Copy(null);
+                if (fn != null && fn.Value == null) {
+                    fn.Parent = tree; // .Copy(tree.Parent);
+                    Tree.PopulateScope(fn);
+                    fn.Value = fn.Eval();
+                    tree.Value = fn.Value;
+                }
                 break;
         }
     }

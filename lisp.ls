@@ -9,10 +9,10 @@
 # == 13
 # (print ((if true (fn (a b) (+ a b)) -) 3 foob))
 
-(def add (fn (a b) (+ a b)))
+# (def add (fn (a b) (+ a b)))
 # 5
-(print (add 2 3))
-(print (add 1 13))
+# (print (add 2 3))
+# (print (add 1 13))
 
 # (def same (fn (a b) (if (== a b) a (+ 1 (same (+ 1 4) 5)))))
 # (print (same 2 2))
@@ -33,4 +33,4 @@
 (def fac (fn (n) (if (== n 0) 1 (* n (fac (- n 1))))))
 
 # (print (fac 0))
-# (fac 1)
+(fac 10)
