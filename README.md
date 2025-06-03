@@ -2,8 +2,11 @@ Trying to implement a lisp interpreter off the top of my head
 
 Invoke like:
 > dotnet run path/to/lispfile
+
 or for a repl
+
 > dotnet run 
+
 > dotnet run --repl file/to/start/repl/session/with
 
 Syntax:
