@@ -15,10 +15,10 @@ Syntax:
 (print (+ foo 4)) # prints 8
 (def square (fn (n) (* n n))) # defines function called square
 (print (square (+ foo 1))) # prints 25
-(square foo) # last statement of the file is always printed
 (def fac (fn (n) (
    (if (== n 0) 1 (* n (fac (- n 1))))
 ))) # multi-line functions and recursion
+(fac 5) # last statement of the file is always printed
 ```
 
 To Do:
