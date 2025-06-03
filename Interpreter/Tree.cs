@@ -25,10 +25,18 @@ public class Tree(int _depth)
     public string Eval()
     {
         if (this.Value != null) return this.Value;
-        if (this.Children.Count == 0) return null;
+        if (this.Children.Count == 0) return "";
+
+        // Console.WriteLine(this);
 
         bool lazyEval = false;
-        // Console.WriteLine(this);
+        // arrays
+        if (this.Children[0].Value == "[" || this.Children[0].Value == "list") {
+            this.IsArray = true;
+            lazyEval = true;
+        }
+
+        // conditionals
         if (this.Children[0].Value == "if") {
             this.Children[1].Value ??= this.Children[1].Eval();
             if (bool.Parse(this.Children[1].Value ?? "false")) {
@@ -64,6 +72,13 @@ public class Tree(int _depth)
         Builtins.Eval(this);
 
         if (Depth == 0 && this.Value == null) this.Value = this.Children[^1].Value;
+
+        // if (Depth == 0 && this.Children[^1].IsArray) {
+        //     Console.WriteLine(this.Children[^1]);
+        // }
+        // if (Depth == 0 && this.IsArray) {
+        //     Console.WriteLine(this);
+        // }
 
         return this.Value!;
     }

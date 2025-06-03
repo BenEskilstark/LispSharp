@@ -25,8 +25,32 @@ public class Builtins()
             case "list":
                 tree.IsArray = true;
                 break;
+            case "car":
+            case "first":
+                tree.Value = tree.Children[1].Children[1].Value;
+                break;
+            case "cdr":
+            case "rest":
+            case "tail":
+                List<Tree> children = tree.Children[1].Children.Skip(2).ToList();
+                Tree parent = tree.Parent;
+                int index = 0;
+                for (int i = 0; i < parent.Children.Count; i++) {
+                    if (parent.Children[i] == tree) {
+                        index = i;
+                        break;
+                    }
+                }
+                tree = Parser.Parse("([ " + string.Join(" ", children) + ")", tree)
+                    .Children[2];
+                parent.Children[index] = tree;
+                tree.Parent = parent;
+                tree.IsArray = true;
+                break;
+            case "cons":
+                break;
 
-            // conditionals
+            // conditionals NOT USED, this happens in Tree.Eval()
             case "if":
                 if (bool.Parse(tree.Children[1].Value ?? "false"))
                 {

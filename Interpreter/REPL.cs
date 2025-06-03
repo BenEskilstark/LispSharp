@@ -9,13 +9,13 @@ public class REPL(Tree startingEnv) {
         while (true)
         {
             Console.Write("> ");
-            string input = Console.ReadLine();
+            string? input = Console.ReadLine();
             if (input == "exit" || input == "(exit)") break;
-            if (input == "") continue;
+            if (input == null || input == "") continue;
 
             try {
                 Tree nextLine = Parser
-                    .Parse(input, this.Environment)
+                    .Parse(input ?? "()", this.Environment)
                     .Children[this.LineNum];
 
                 Console.WriteLine(nextLine.Eval());
